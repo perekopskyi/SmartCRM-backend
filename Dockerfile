@@ -35,7 +35,7 @@ RUN pnpm install --prod --frozen-lockfile
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 
-# Expose port
+# Expose port (Railway will override with its own PORT)
 EXPOSE 2005
 
 # Start the application
