@@ -9,10 +9,11 @@ export class CustomersService {
   async findAll() {
     const supabase = this.supabaseService.getClient();
 
+    // Use customer_stats view for aggregated data
     const { data, error } = await supabase
-      .from('customers')
+      .from('customer_stats')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('id', { ascending: false });
 
     if (error) {
       throw new Error(`Failed to fetch customers: ${error.message}`);
@@ -21,11 +22,13 @@ export class CustomersService {
     // Transform snake_case to camelCase for frontend
     return data.map((customer) => ({
       id: customer.id,
-      name: customer.name,
+      name: customer.customer_name,
       email: customer.email,
       phone: customer.phone,
+      balance: customer.balance,
       totalOrders: customer.total_orders,
       totalSpent: customer.total_spent,
+      lastOrderDate: customer.last_order_date,
     }));
   }
 
@@ -44,11 +47,15 @@ export class CustomersService {
 
     return {
       id: data.id,
-      name: data.name,
+      firstName: data.first_name,
+      lastName: data.last_name,
       email: data.email,
       phone: data.phone,
-      totalOrders: data.total_orders,
-      totalSpent: data.total_spent,
+      address: data.address,
+      balance: data.balance,
+      notes: data.notes,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
   }
 
@@ -59,9 +66,12 @@ export class CustomersService {
       .from('customers')
       .insert([
         {
-          name: createCustomerDto.name,
+          first_name: createCustomerDto.first_name,
+          last_name: createCustomerDto.last_name,
           email: createCustomerDto.email,
           phone: createCustomerDto.phone,
+          address: createCustomerDto.address,
+          notes: createCustomerDto.notes,
         },
       ])
       .select()
@@ -73,24 +83,32 @@ export class CustomersService {
 
     return {
       id: data.id,
-      name: data.name,
+      firstName: data.first_name,
+      lastName: data.last_name,
       email: data.email,
       phone: data.phone,
-      totalOrders: data.total_orders,
-      totalSpent: data.total_spent,
+      address: data.address,
+      balance: data.balance,
+      notes: data.notes,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
   }
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto) {
     const supabase = this.supabaseService.getClient();
 
+    const updateData: any = {};
+    if (updateCustomerDto.first_name !== undefined) updateData.first_name = updateCustomerDto.first_name;
+    if (updateCustomerDto.last_name !== undefined) updateData.last_name = updateCustomerDto.last_name;
+    if (updateCustomerDto.email !== undefined) updateData.email = updateCustomerDto.email;
+    if (updateCustomerDto.phone !== undefined) updateData.phone = updateCustomerDto.phone;
+    if (updateCustomerDto.address !== undefined) updateData.address = updateCustomerDto.address;
+    if (updateCustomerDto.notes !== undefined) updateData.notes = updateCustomerDto.notes;
+
     const { data, error } = await supabase
       .from('customers')
-      .update({
-        name: updateCustomerDto.name,
-        email: updateCustomerDto.email,
-        phone: updateCustomerDto.phone,
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
@@ -101,11 +119,15 @@ export class CustomersService {
 
     return {
       id: data.id,
-      name: data.name,
+      firstName: data.first_name,
+      lastName: data.last_name,
       email: data.email,
       phone: data.phone,
-      totalOrders: data.total_orders,
-      totalSpent: data.total_spent,
+      address: data.address,
+      balance: data.balance,
+      notes: data.notes,
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
   }
 
