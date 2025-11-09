@@ -18,14 +18,16 @@ export class StatsService {
     }
 
     // Get orders data for calculations
-    const { data: orders, error: ordersError } = await supabase.from('orders').select('total')
+    const { data: orders, error: ordersError } = await supabase
+      .from('orders')
+      .select('total_amount')
 
     if (ordersError) {
       throw new Error(`Failed to fetch orders: ${ordersError.message}`)
     }
 
     const totalOrders = orders?.length || 0
-    const totalRevenue = orders?.reduce((sum, order) => sum + (order.total || 0), 0) || 0
+    const totalRevenue = orders?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
 
     return {
