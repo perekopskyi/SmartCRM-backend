@@ -19,7 +19,7 @@ COPY . .
 RUN pnpm run build
 
 # Verify build output exists
-RUN ls -la dist/ && test -f dist/main.js
+RUN ls -la dist/ && ls -la dist/src/ && test -f dist/src/main.js
 
 # Production stage
 FROM node:20-alpine
@@ -43,10 +43,10 @@ COPY --from=builder /app/nest-cli.json ./
 COPY --from=builder /app/tsconfig.json ./
 
 # Verify dist/main.js exists in production stage
-RUN ls -la dist/ && test -f dist/main.js
+RUN ls -la dist/ && ls -la dist/src/ && test -f dist/src/main.js
 
 # Expose port (Railway will override with its own PORT)
 EXPOSE 2005
 
 # Start the application
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
